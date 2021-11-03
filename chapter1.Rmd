@@ -14,10 +14,13 @@ I am a PhD student in economics at University of Helsinki focusing on **time ser
 
 At the moment, I feel motivated in this course with expectation of learning as much as possible on how to deal with data in a much broader context. I am also eager to learn how to use the open source platforms such as __*R*__ and __*GitHub*__ as well as to improve my programming skills. I firstly heard about this course from my fellows at **Economicum**. They told me that this is a great course. I hope I get the best experience as them.
 
-### My GitHub repository for this project:
+#### My GitHub repository for this project:
 
 https://github.com/alfanmansur/IODS-project
 
+#### My course diary for this project:
+
+https://alfanmansur.github.io/IODS-project
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
@@ -25,5 +28,5 @@ https://github.com/alfanmansur/IODS-project
 date()
 
 ```
-The text continues here.
+No text continues here.
 
