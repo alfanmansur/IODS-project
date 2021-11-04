@@ -12,7 +12,7 @@ author: "Alfan Mansur"
 
 I am a PhD student in economics at University of Helsinki focusing on **time series econometrics** with emphasis on empirical applications. My current research project is to study the fiscal and monetary policy shocks. 
 
-At the moment, I feel motivated in this course with expectation of learning as much as possible on how to deal with data in a much broader context. I am also eager to learn how to use the open source platforms such as __*R*__ and __*GitHub*__ as well as to improve my programming skills. I firstly heard about this course from my fellows at **Economicum** who told me that it was a great course. I hope I get a great experience as them.
+At the moment, I feel motivated in this course with expectation of learning as much as possible on how to deal with data in a much broader context. I am also eager to learn how to use the open source platforms such as __*R*__ and __*GitHub*__ as well as to improve my programming skills. I firstly heard about this course from my fellows at **Economicum** who told me that it was a great course and I hope I get a great experience as them.
 
 #### My GitHub repository for this project:
 
