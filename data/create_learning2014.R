@@ -1,5 +1,5 @@
 # Alfan Mansur
-# 08.11.2021
+# 09.11.2021
 # Read and analyze the learning2014 data
 
 # Read the full learning2014 data
@@ -44,8 +44,9 @@ surf <- rowMeans(cbind(su_lp, su_um, su_sb))
 
 # Create an analysis dataset with the variables gender, age, attitude, deep, stra, surf and points
 mydataset <- data.frame(data$gender, data$Age, data$Attitude, deep, stra, surf, data$Points)
-newdata <- mydataset[!(mydataset$data.Points==0),]
-names(newdata)[1] <- "gender"
+newdata <- mydataset[!(mydataset$data.Points==0),] #Exclude observations where the exam points variable is zero
+
+names(newdata)[1] <- "gender"    #Rename headers 1,2,3,7
 names(newdata)[2] <- "age"
 names(newdata)[3] <- "attitude"
 names(newdata)[7] <- "points"
