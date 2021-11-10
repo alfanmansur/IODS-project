@@ -1,4 +1,9 @@
-# Insert chapter 2 title here
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Chapter 2 Data Wrangling and Data Analysis
 
 *Describe the work you have done this week and summarize your learning.*
 
@@ -6,8 +11,236 @@
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
 - Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
 
+This Chapter contains two parts: (1) data wrangling and (2) data analysis.
+
+### Part 1: data wrangling
+
+We first read the full learning2014 data from "http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt". This is a data from survey (3.12.2014 - 10.1.2015) about the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland.
+
+It is a 183x60 data consisting of (i) 56 categorical-likert-scale variables (scale 1-5), (ii) 3 numerical variables (age, attitude, points), and (iii) 1 factor variable (gender:female or male).
+
+We create an analysis dataset for the analysis exercise. To produce the dataset, see **create_learning2014.R** file in the folder **data** here: https://github.com/alfanmansur/IODS-project/tree/master/data.
+And the dataset produced is **newdata2014.csv** file in the same folder.
+
+### Part 2: data analysis
+
+#### 2.1 Explore the data
+
+Let's us firstly run the R script below and print the outputs. We then proceed by reading the outputs.
+
 ```{r}
+# Read the data from my local folder
+myData <- read.csv('./data/newdata2014.csv')
+str(myData)
+head(myData)
+summary(myData)  #Somehow, the variable 'attitude' doesn't have the same scale as the dataset in "http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt". 
+
+# Here I divide each element of 'attitude' by 10 to match the scale as in the link above.
+myData[3] <- lapply(myData[3], `/`, 10)
+# Explore the structure and the dimensions of the data
+str(myData) #the structure of the data
+```
+```{r}
+head(myData)  #display the first 6 observations
+```
+```{r}
+summary(myData)
 date()
 ```
+**About the dataset** \
 
-Here we go again...
+This is a data from survey (3.12.2014 - 10.1.2015) about the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-Finland.\
+
+Based on the outputs above, in brief, the analysis dataset consists of 166 observations of 7 variables: gender, age, attitude, deep, stra, surf, points. The descriptions are as follows:\
+- gender: Male = 1  Female = 2.\
+- age: Age (in years) derived from the date of birth. The youngest is 17 years old, while the oldest is 55 years old.\
+- attitude: Global attitude toward statistics ( indexed by ~Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj in the survey)\
+- deep: Factor score of deep approach, averaged from 1-5 scale of 3 elements: Seeking Meaning, Relating Ideas, and Use of Evidence.\
+- stra: Factor score of Strategic approach, averaged from 1-5 scale of 2 elements: Organized Studying and Time Management.\
+- surf: Factor score of Surface approach, averaged from 1-5 scale of 3 elements: Lack of Purpose, Unrelated Memorising, and Syllabus-boundness.\
+- points: Total exam points where the minimum is 7 and the maximum is 33 points.\
+
+We study the dataset for analysis further in the following section.
+
+#### 2.2 A graphical overview of the data and summaries of the variables
+
+We will look at the 7 variables one by one. The first variable is **gender** which takes only two values, female "F" and male "M". We have observations of 110 females and 56 males out of 166 observations. Or in proportion, we have 66.27 % of females and 33.73 % of males. See the R script and produced outputs below.
+
+```{r}
+gendercounts <- table(myData$gender)
+addmargins(gendercounts)
+```
+```{r}
+round(100*prop.table(gendercounts),digits=2)
+```
+```{r}
+barplot(gendercounts, main="Bar Plot of 'Gender'",
+   xlab="Gender", ylab="Frequency")
+```
+The second variable is **age**. From the summary, the averaged age of the 166 observations is 25.51 years old and 17 years old and 55 years old are the youngest and the oldest, respectively. From the distribution plot, it seems that variable 'age' doesn't feature a Normal distribution rather skewed to the left where we have more observations on ages below 30 years old.
+
+```{r}
+summary(myData$age)
+```
+```{r}
+x <- myData$age
+h<-hist(x, breaks=10, col="blue", xlab="Age",
+   main="Histogram of 'Age' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+The third variable is **attitude** which reflects global attitude toward statistics. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.143 from the summary.
+
+```{r}
+summary(myData$attitude)
+```
+
+```{r}
+x <- myData$attitude
+h<-hist(x, breaks=10, col="blue", xlab="Age",
+   main="Histogram of 'Attitude' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+The fourth variable is **deep** which reflects factor score of deep approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.680 from the summary.
+
+```{r}
+summary(myData$deep)
+```
+
+```{r}
+x <- myData$deep
+h<-hist(x, breaks=10, col="blue", xlab="Score",
+   main="Histogram of 'deep' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+
+
+The fifth variable is **stra** which stands for factor score of Strategic approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.121 from the summary.
+
+```{r}
+summary(myData$stra)
+```
+
+```{r}
+x <- myData$stra
+h<-hist(x, breaks=10, col="blue", xlab="Score",
+   main="Histogram of 'stra' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+
+
+The sixth variable is **surf** which stands for factor score of Surface approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 2.787 from the summary.
+
+```{r}
+summary(myData$surf)
+```
+
+```{r}
+x <- myData$surf
+h<-hist(x, breaks=10, col="blue", xlab="Score",
+   main="Histogram of 'surf' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+
+Finally, the last variable is **points** which stands for exam points earned. From the distribution plot, it seems that this variable follows a Normal distribution with mean of 22.72 points from the summary.
+
+```{r}
+summary(myData$points)
+```
+
+```{r}
+x <- myData$points
+h<-hist(x, breaks=10, col="blue", xlab="Points",
+   main="Histogram of 'points' with Normal Curve")
+xfit<-seq(min(x),max(x),length=40)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+```
+
+Now, we look at the relationship by analyzing correlation between the 7 variables above. We firstly convert the 'gender' variable into numeric 1 for female and 2 for male. From the correlation matrix below, we can see that we have noticeable positive correlation between 'attitude' and 'points' (0.44) and between 'attitude' and 'gender' (0.29). We also have noticeable negative correlation between 'deep' and 'surf'.
+
+```{r}
+rf <- factor(myData$gender)   
+myData$gender <- as.numeric(rf) # convert character variable to numeric
+library(corrplot)
+M = cor(myData)
+corrplot(M, method = 'number')  # produce correlation matrix
+
+```
+
+#### 2.3 Fit a regression model
+
+Having observed the correlation matrix in the previous section above, I pick up 'attitude', 'gender', and 'stra' as three explanatory variables to fit a regression model where exam points is the target (dependent) variable.
+
+```{r}
+# fit a regression model (model 1)
+model <- lm(points ~ attitude + gender + stra, data = myData)
+summary(model)
+
+```
+Summary of the fitted model can be seen from the display above. In terms of the goodness of fit, it performs adequately well although weak, where it features R-squared of 0.2051, meaning that 20.51 of the variance in the exam points can be explained collectively by 'attitude', 'gender', and 'stra'. On the other hand, the Adjusted R-squared of 0.1904 means that ........
+
+However, among the three explanatory variables, only 'attitude' is significant. The significance test is based on the t-statistic of 5.893 which comes from the Estimate of 3.51 divided by the Std. Error of 0.5956. The coefficient of 'attitude' of 3.51 can be interpreted as if attitude score increases by 1 unit, the exam points will increase by 3.51 points.
+
+Next, we consider to remove 'gender' and 'stra' from the model as they are insignificant.
+
+#### 2.4. Fit another regression model
+
+```{r}
+# gender and stra are removed and fit the model again without them (model 2)
+model2 <- lm(points ~ attitude, data = myData)
+summary(model2)
+
+```
+With only one explanatory variable i.e. 'attitude', this model has a slightly lower goodness of fit with R-squared of 0.1906, compared to the model 1 previously. 'attitude' is still significant though with high power of the test. It is based on the t-statistic value of 6.214 which results from the Estimate divided by Std. Error. The estimate of 3.5255 means that if 'attitude' score increases by 1 point, then the exam points will increase by 3.5255 points. 
+
+Since 'attitude' is composed from Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj indexes in the survey, then the following things will positively impact the exam points:\
+- Da: I feel confident I can master statistics topics\
+- Db: Statistics will be useful for my future work\
+- Dc: I am interested in understanding statistics\
+- Dd: I did well in high school mathematics courses\
+- De: I am interested in learning statistics\
+- Df: I feel insecure when I have to do statistics problems\
+- Dg: I like statistics\
+- Dh: I am scared by statistics\
+- Di: I feel confident in doing math operations\
+- Dj: Statistics will be useful for my future studies\
+In shorter words, it's all about the feelings of confidence and self motivation that can increase the exam points.
+
+
+#### 2.5 Diagnostic tests
+
+In this last section, we perform a number of diagnostic tests to test the model's performance. We only test the second model.
+
+We plot residuals vs fitted values, Normal QQ-plot, and Residuals vs Leverage.
+
+```{r}
+# plot residuals vs fitted values of model 2
+plot(lm(points ~ attitude, data = myData))
+
+```
+
+
+
+_This is the end of the report_
+
+```{r}
+date()
+
+```
+
