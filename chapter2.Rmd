@@ -245,7 +245,7 @@ equatiomatic::extract_eq(model2, use_coefs = TRUE)
 
 ```
 
-With only one explanatory variable i.e. 'attitude', this model has a slightly lower goodness of fit with R-squared of 0.1906, compared to the model 1 previously. The Adjusted R-squared of 0.1856 is also lower which makes sense since we only have one predictor in the model. About the Adjusted R-squared has already been explained in the previous paragraph above. In terms of parameter coefficients, 'attitude' is still significant though with a high power of the test. It is based on the t-statistic value of 6.214 which results from the Estimate divided by the Std. Error. The estimate of 3.5255 means that if 'attitude' score increases by 1 point, then the exam points will increase by 3.5255 points. 
+With only one explanatory variable i.e. 'attitude', this model has a slightly lower goodness of fit with R-squared of 0.1906, compared to the model 1 previously. The Adjusted R-squared of 0.1856 is also lower which makes sense since we only have one predictor in the model. About the Adjusted R-squared, it has already been explained in the previous paragraph above. In terms of parameter coefficients, 'attitude' is still significant though with a high power of the test. It is based on the t-statistic value of 6.214 which results from the Estimate divided by the Std. Error. The estimate of 3.5255 means that if 'attitude' score increases by 1 point, then the exam points will increase by 3.5255 points. 
 
 Since 'attitude' is composed from Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj indexes in the survey, then the following things will positively impact the exam points:\
 - Da: I feel confident I can master statistics topics\
@@ -263,7 +263,7 @@ In shorter words, it's all about the feelings of confidence and self motivation 
 
 ### 2.5 Diagnostic tests
 
-In this last section, we perform a number of diagnostic tests to test the model's performance. We only test the second model as it becomes our final model after removing the insignificant explanatory variables. Since we estimate the model by Ordinary Least Squares (OLS) method, in brief, we have the following assumptions (adopted from Hayashi(2000):\
+In this last section, we perform a number of diagnostic tests to test the model's performance. We only test the second model as it becomes our final model after removing the insignificant explanatory variables. Since we estimate the model by Ordinary Least Squares (OLS) method, in brief, we have the following assumptions (adopted from Hayashi(2000)):\
 
 **A1. Linearity**, i.e. the model is linear in parameters.\
 $y_i=\beta_1 x_{i1}+\beta_2 x_{i2}+...+\beta_K x_{iK}+\varepsilon_i,\quad i=1,2,...,n$.\
@@ -281,7 +281,7 @@ We plot residuals vs fitted values, Normal QQ-plot, and Residuals vs Leverage.
 
 First, we synthesize information from the plot of residuals vs fitted values (see the first figure below). We want to investigate three things from this plot, i.e. (1) whether linearity holds, (2) whether homoskedasticity holds, (3) outliers. From the first figure, linearity seems to hold reasonably well as the red line is close to the dashed line. Homoskedasticity also seems to hold as the spread of the residuals seem constant as the number of observations grow. However, there seems to be some visible outliers.
 
-Second, we synthesize information from the Normal Q-Q plot (see the second figure below). Our intention here is to check whether the Normality holds since we assume that our dependent variable is Normally distributed. From the plot, there is an indication that our sample data slightly deviates from the Normal distribution as not all dots fall into the straight line curve.
+Second, we synthesize information from the Normal Q-Q plot (see the second figure below). Our intention here is to check whether the Normality holds since we assume that the error terms are Normally distributed or $\varepsilon \sim N(0,\sigma^2)$. From the plot, there is an indication that the errors slightly deviates from the Normal distribution as not all dots fall into the straight line curve. However, they look still acceptable.
 
 Lastly, we synthesize information from the plot of residuals vs Leverage (see the last figure below). Our intention here is to detect important observations in the model. Each dot in the plot reflects each observation. Leverage in the plot refers to how the parameter coefficients will change if some particular observations are removed. From the plot, we see that observation #56 and #35 lie closest to the border of Cook’s distance, but they don’t fall outside of the dashed line. It means that there are not any influential points in our model.
 
