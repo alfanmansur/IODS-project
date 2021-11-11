@@ -1,14 +1,10 @@
 
 ---
-title: "Introduction to Open Data Science Chapter 1"
+title: "Introduction to Open Data Science"
 author: "Alfan Mansur"
 ---
 
-### About the project
-
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
-
-### Introduction
+# Chapter 1 Introduction
 
 I am a PhD student in economics at University of Helsinki focusing on **time series econometrics** with emphasis on empirical applications. My current research project is to study the fiscal and monetary policy shocks. 
 

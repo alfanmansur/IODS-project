@@ -5,15 +5,15 @@ editor_options:
 ---
 # Chapter 2 Data Wrangling and Data Analysis
 
-*Describe the work you have done this week and summarize your learning.*
+*Summary of the week (completed work and learning)*
 
+This Chapter contains two parts: (1) data wrangling and (2) data analysis.
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
 - Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
 
-This Chapter contains two parts: (1) data wrangling and (2) data analysis.
 
-### Part 1: data wrangling
+## Part 1: data wrangling
 
 We first read the full learning2014 data from "http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt". This is a data from survey (3.12.2014 - 10.1.2015) about the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland.
 
@@ -22,9 +22,9 @@ It is a 183x60 data consisting of (i) 56 categorical-likert-scale variables (sca
 We create an analysis dataset for the analysis exercise. To produce the dataset, see **create_learning2014.R** file in the folder **data** here: https://github.com/alfanmansur/IODS-project/tree/master/data.
 And the dataset produced is **newdata2014.csv** file in the same folder.
 
-### Part 2: data analysis
+## Part 2: data analysis
 
-#### 2.1 Explore the data
+### 2.1 Explore the data
 
 Let's us firstly run the R script below and print the outputs. We then proceed by reading the outputs.
 
@@ -47,6 +47,8 @@ head(myData)  #display the first 6 observations
 summary(myData)
 date()
 ```
+
+
 **About the dataset** \
 
 This is a data from survey (3.12.2014 - 10.1.2015) about the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-Finland.\
@@ -62,7 +64,7 @@ Based on the outputs above, in brief, the analysis dataset consists of 166 obser
 
 We study the dataset for analysis further in the following section.
 
-#### 2.2 A graphical overview of the data and summaries of the variables
+### 2.2 A graphical overview of the data and summaries of the variables
 
 We will look at the 7 variables one by one. The first variable is **gender** which takes only two values, female "F" and male "M". We have observations of 110 females and 56 males out of 166 observations. Or in proportion, we have 66.27 % of females and 33.73 % of males. See the R script and produced outputs below.
 
@@ -77,6 +79,8 @@ round(100*prop.table(gendercounts),digits=2)
 barplot(gendercounts, main="Bar Plot of 'Gender'",
    xlab="Gender", ylab="Frequency")
 ```
+\
+
 The second variable is **age**. From the summary, the averaged age of the 166 observations is 25.51 years old and 17 years old and 55 years old are the youngest and the oldest, respectively. From the distribution plot, it seems that variable 'age' doesn't feature a Normal distribution rather skewed to the left where we have more observations on ages below 30 years old.
 
 ```{r}
@@ -91,6 +95,8 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
+\
+
 The third variable is **attitude** which reflects global attitude toward statistics. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.143 from the summary.
 
 ```{r}
@@ -106,6 +112,8 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
+\
+
 The fourth variable is **deep** which reflects factor score of deep approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.680 from the summary.
 
 ```{r}
@@ -121,7 +129,7 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
-
+\
 
 The fifth variable is **stra** which stands for factor score of Strategic approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 3.121 from the summary.
 
@@ -138,7 +146,7 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
-
+\
 
 The sixth variable is **surf** which stands for factor score of Surface approach. From the distribution plot, we can safely say that this variable follows a Normal distribution with mean of 2.787 from the summary.
 
@@ -155,6 +163,7 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
+\
 
 Finally, the last variable is **points** which stands for exam points earned. From the distribution plot, it seems that this variable follows a Normal distribution with mean of 22.72 points from the summary.
 
@@ -171,6 +180,7 @@ yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
 ```
+\
 
 Now, we look at the relationship by analyzing correlation between the 7 variables above. We firstly convert the 'gender' variable into numeric 1 for female and 2 for male. From the correlation matrix below, we can see that we have noticeable positive correlation between 'attitude' and 'points' (0.44) and between 'attitude' and 'gender' (0.29). We also have noticeable negative correlation between 'deep' and 'surf'.
 
@@ -183,31 +193,56 @@ corrplot(M, method = 'number')  # produce correlation matrix
 
 ```
 
-#### 2.3 Fit a regression model
+### 2.3 Fit a regression model
 
 Having observed the correlation matrix in the previous section above, I pick up 'attitude', 'gender', and 'stra' as three explanatory variables to fit a regression model where exam points is the target (dependent) variable.
+
 
 ```{r}
 # fit a regression model (model 1)
 model <- lm(points ~ attitude + gender + stra, data = myData)
-summary(model)
+# display the actual coefficients
+equatiomatic::extract_eq(model)
 
 ```
-Summary of the fitted model can be seen from the display above. In terms of the goodness of fit, it performs adequately well although weak, where it features R-squared of 0.2051, meaning that 20.51 of the variance in the exam points can be explained collectively by 'attitude', 'gender', and 'stra'. On the other hand, the Adjusted R-squared of 0.1904 means that ........
 
-However, among the three explanatory variables, only 'attitude' is significant. The significance test is based on the t-statistic of 5.893 which comes from the Estimate of 3.51 divided by the Std. Error of 0.5956. The coefficient of 'attitude' of 3.51 can be interpreted as if attitude score increases by 1 unit, the exam points will increase by 3.51 points.
+```{r}
+summary(model)
+```
+```{r}
+# display the actual coefficients
+equatiomatic::extract_eq(model, use_coefs = TRUE)
+
+```
+
+Summary of the fitted model can be seen from the display above. In terms of the goodness of fit, it performs adequately well although weak, where it features R-squared of 0.2051, meaning that 20.51 of the variance in the exam points can be explained collectively by 'attitude', 'gender', and 'stra'. On the other hand, the Adjusted R-squared refers to the R-squared adjusted for the number of predictors in the model. Adding more predictors may increase both the R-squared and the Adjusted R-squared, if the predictors turn out to be significant. Otherwise, it will decrease the Adjusted R-squared. Typically, the Adjusted R-squared is lower from the R-squared as we can see from the summary above (0.1904).
+
+As for significance, among the three explanatory variables, only 'attitude' is significant. The significance test is based on the t-statistic of 5.893 which comes from the Estimate of 3.51 divided by the Std. Error of 0.5956. The coefficient of 'attitude' of 3.51 can be interpreted as if attitude score increases by 1 unit, the exam points will increase by 3.51 points.
 
 Next, we consider to remove 'gender' and 'stra' from the model as they are insignificant.
 
-#### 2.4. Fit another regression model
+### 2.4. Fit another regression model
 
 ```{r}
 # gender and stra are removed and fit the model again without them (model 2)
 model2 <- lm(points ~ attitude, data = myData)
+# Show the theoretical model (model2)
+equatiomatic::extract_eq(model2)
+
+```
+
+```{r}
+
 summary(model2)
 
 ```
-With only one explanatory variable i.e. 'attitude', this model has a slightly lower goodness of fit with R-squared of 0.1906, compared to the model 1 previously. 'attitude' is still significant though with high power of the test. It is based on the t-statistic value of 6.214 which results from the Estimate divided by Std. Error. The estimate of 3.5255 means that if 'attitude' score increases by 1 point, then the exam points will increase by 3.5255 points. 
+```{r}
+# display the actual coefficients
+equatiomatic::extract_eq(model2, use_coefs = TRUE)
+
+```
+
+With only one explanatory variable i.e. 'attitude', this model has a slightly lower goodness of fit with R-squared of 0.1906, compared to the model 1 previously. The Adjusted R-squared of 0.1856 is also lower which makes sense since we only have one predictor in the model. About the Adjusted R-squared has already been explained in the previous paragraph above. In terms of parameter coefficients, 'attitude' is still significant though with a high power of the test. It is based on the t-statistic value of 6.214 which results from the Estimate divided by the Std. Error. The estimate of 3.5255 means that if 'attitude' score increases by 1 point, then the exam points will increase by 3.5255 points. 
 
 Since 'attitude' is composed from Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj indexes in the survey, then the following things will positively impact the exam points:\
 - Da: I feel confident I can master statistics topics\
@@ -220,14 +255,28 @@ Since 'attitude' is composed from Da+Db+Dc+Dd+De+Df+Dg+Dh+Di+Dj indexes in the s
 - Dh: I am scared by statistics\
 - Di: I feel confident in doing math operations\
 - Dj: Statistics will be useful for my future studies\
-In shorter words, it's all about the feelings of confidence and self motivation that can increase the exam points.
+In shorter words, it's all about the feelings of confidence and self motivation that may increase the exam points.
 
 
-#### 2.5 Diagnostic tests
+### 2.5 Diagnostic tests
 
-In this last section, we perform a number of diagnostic tests to test the model's performance. We only test the second model.
+In this last section, we perform a number of diagnostic tests to test the model's performance. We only test the second model as it becomes our final model after removing the insignificant explanatory variables. Since we estimate the model by Ordinary Least Squares (OLS) method, in brief, we have the following assumptions (adopted from Hayashi(2000):\
+**A1. Linearity**, i.e. the model is linear in parameters.\
+$y_i=\beta_1 x_{i1}+\beta_2 x_{i2}+...+\beta_K x_{iK}+\varepsilon_i,\quad i=1,2,...,n$.\
+where $\beta$'s are unknown parameters to be estimated, and $\varepsilon_i$ is the unobserved error term with certain properties.
+**A2. Strict exogeneity** or Zero conditional mean of errors or $E(\varepsilon_i|X)=0,\quad i=1,2,...,n$.\
+**A3. No multicollinearity**, i.e. the rank of the $n\times K$ data matrix, $X$, is $K$ with probability $1$ or in other words, none of the $K$ columns of the data matrix $X$ can be expressed as a linear combination of the other columns of $X$.\
+**A.4. Spherical error variance**:\
+- homoskedasticity: $E(\varepsilon_i^2|X)=\sigma^2>0,\quad i=1,2,...,n$.\
+- no correlation between observations: $E(\varepsilon_i \varepsilon_j |X)=0,\quad i,j=1,2,...,n;i\neq j$.\
 
 We plot residuals vs fitted values, Normal QQ-plot, and Residuals vs Leverage.
+
+First, we synthesize information from the plot of residuals vs fitted values (see the first figure below). We want to investigate three things from this plot, i.e. (1) whether linearity holds, (2) whether homoskedasticity holds, (3) outliers. From the first figure, linearity seems to hold reasonably well as the red line is close to the dashed line. Homoskedasticity also seems to hold as the spread of the residuals seem constant as the number of observations grow. However, there seems to be some visible outliers.
+
+Second, we synthesize information from the Normal Q-Q plot (see the second figure below). Our intention here is to check whether the Normality holds since we assume that our dependent variable is Normally distributed. From the plot, there is an indication that our sample data slightly deviates from the Normal distribution as not all dots fall into the straight line curve.
+
+Lastly, we synthesize information from the plot of residuals vs Leverage (see the last figure below). Our intention here is to detect important observations in the model. Each dot in the plot reflects each observation. Leverage in the plot refers to how the parameter coefficients will change if some particular observations are removed. From the plot, we see that observation #56 and #35 lie closest to the border of Cook’s distance, but they don’t fall outside of the dashed line. It means that there are not any influential points in our model.
 
 ```{r}
 # plot residuals vs fitted values of model 2
