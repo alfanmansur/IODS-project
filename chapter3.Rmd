@@ -1,0 +1,260 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Chapter 3 Logistic regression
+
+*Summary of the week (completed work and learning)*
+
+In this Chapter we work on data from two questionnaires related to student performance (especially including alcohol consumption). We cover two parts: (1) data wrangling and (2) data analysis with logistic regression.\
+
+* In data wrangling, we join two data sets together and create an analysis dataset (.csv file) using an R script.\
+
+* In data analysis, we study the relationships between high/low alcohol consumption and some of the other variables in the data.\
+
+* This report follows the following logic: R script used --> ouputs --> explanations.
+
+## Part 1: data wrangling
+
+We join two data sets together and create an analysis dataset for the analysis exercise. To produce the dataset, see **create_alc.R** file in the folder **data** here: https://github.com/alfanmansur/IODS-project/tree/master/data.
+And the dataset produced is **data_alc.csv** file in the same folder.
+
+## Part 2: data analysis with logistic regression
+
+### 3.1 Explore the data
+
+Let's us firstly run the R script below and print the outputs. We then proceed by reading the outputs.
+
+```{r}
+
+# Read the data from my local folder
+mydata <- read.csv('./data/data_alc.csv')
+
+# Read the data from url link (only for checking purpose)
+data <- read.csv("https://github.com/rsund/IODS-project/raw/master/data/alc.csv", 
+                 header = TRUE, sep = ",")
+# Comparing those two datasets, my constructed dataset is just exactly the same as the dataset given in the link, except the variables ending with ".p" or ".m" which I don't include in my dataset as we don't need them for analysis.
+
+colnames(mydata)
+```
+```{r}
+summary(mydata)
+str(mydata)
+```
+**Brief description about the dataset** \
+The original source of the data is here: https://archive.ics.uci.edu/ml/datasets/Student+Performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por) which then we join the two datasets becoming one dataset as we use for the analysis in the next section. There are originally 33 attributes and then we construct 2 additional attributes, i.e. (1) alcohol consumption which is the average of the answers related to weekday and weekend alcohol consumption, and (2) logical class of data for attribute of high consumption of alcohol defined by attribute of alcohol consumption >2. Altogether, we have 370 observations of 35 attributes. The detail description of the original 33 attributes can be seen in the provided link. 
+
+### 3.2 Explore the distributions of the variables
+
+To study the relationships between high/low alcohol consumption and some of the other variables, we start with choosing 4 variables from the dataset and we present your personal hypothesis about their relationships with alcohol consumption. First, **age**, our hypothesis is that the older the student is, the more he/she will consume alcohol. Second, **famrel (quality of family relationships)**, our hypothesis is that the higher quality, the less a student consumes alcohol since he/she will have more time spent with family. Third, **goout (going out with friends)**, our hypothesis is that the more goout, the more consumption of alcohol is. Finally, **health (current health status)**, our hypothesis is that a student with a bad health condition will consume less alcohol.
+
+Let's now we numerically and graphically explore the distributions of the chosen variables and their relationships with alcohol consumption using: \
+- cross-tabulations, \
+- bar plots, and \
+- box plots.
+
+Cross-tabulations of alcohol consumption with age is given below:
+
+```{r}
+table(mydata$alc_use, mydata$age)
+```
+```{r}
+table(mydata$high_use, mydata$age)
+```
+Cross-tabulations of alcohol consumption with family relation is given below:
+
+```{r}
+table(mydata$alc_use, mydata$famrel)
+```
+
+
+```{r}
+table(mydata$high_use, mydata$famrel)
+```
+Cross-tabulations of alcohol consumption with 'go out with friends' is given below:
+
+```{r}
+table(mydata$alc_use, mydata$goout)
+```
+
+```{r}
+table(mydata$high_use, mydata$goout)
+```
+Cross-tabulations of alcohol consumption with health is given below:
+
+```{r}
+table(mydata$alc_use, mydata$health)
+```
+
+```{r}
+table(mydata$high_use, mydata$health)
+```
+Using barplots and boxplots:
+
+First, the plots of alcohol consumption and age
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+temp <- mydata %>% group_by(age = factor(age)) %>% summarise(alc_use = mean(alc_use))
+ggplot(mydata, aes(factor(age), alc_use)) + geom_bar(data = temp, aes(age, alc_use), stat = "identity") + geom_boxplot()
+```
+\
+Second, the plots of alcohol consumption and family relation
+
+```{r}
+
+temp <- mydata %>% group_by(famrel = factor(famrel)) %>% summarise(alc_use = mean(alc_use))
+ggplot(mydata, aes(factor(famrel), alc_use)) + geom_bar(data = temp, aes(famrel, alc_use), stat = "identity") + geom_boxplot()
+```
+\
+Third, the plots of alcohol consumption and 'go out with friends'
+
+```{r}
+
+temp <- mydata %>% group_by(goout = factor(goout)) %>% summarise(alc_use = mean(alc_use))
+ggplot(mydata, aes(factor(goout), alc_use)) + geom_bar(data = temp, aes(goout, alc_use), stat = "identity") + geom_boxplot()
+```
+\
+Fourth, the plots of alcohol consumption and health condition
+
+```{r}
+
+temp <- mydata %>% group_by(health = factor(health)) %>% summarise(alc_use = mean(alc_use))
+ggplot(mydata, aes(factor(health), alc_use)) + geom_bar(data = temp, aes(health, alc_use), stat = "identity") + geom_boxplot()
+```
+
+### 3.3 Fit a logistic regression model
+
+Our target (dependent) variable is the high consumption of alcohol and our regressors are the four variables of age, famrel, goout, health.
+
+```{r}
+model <- glm( high_use ~ age + famrel + goout + health, data = mydata, family = binomial)
+summary(model)
+```
+Present and interpret a summary of the fitted model:
+
+Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. 
+
+Interpret the results and compare them to your previously stated hypothesis
+
+explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.
+
+### 3.4. Perform 10-fold cross-validation on the model
+
+Here we perform 10-fold cross-validation of the model using the 'caret' package in R as follows:
+
+```{r}
+library(caret)
+# define training control
+train_control <- trainControl(method = "cv", number = 10)
+
+# train the model on training set
+modelcv <- train(factor(high_use) ~ age + famrel + goout + health,
+               data = mydata,
+               trControl = train_control,
+               method = "glm",
+               family=binomial())
+
+# print cv scores
+modelcv
+```
+Note that, 'caret' package is an optimist, and prefers to report accuracy (proportion of correct classifications) instead of the error (proportion of incorrect classifications). So, referring to our result here, Accuracy of 0.74 is equivalent to error of 0.26 or just about the same with the model introduced in DataCamp (which had about 0.26 error).
+
+In case we want to take into account the uncertainty in our accuracy estimate, we may consider the accuracy standard deviation as presented below:
+
+```{r}
+modelcv$results
+```
+
+Given the AccuracySD of about 0.04, then our accuracy is around 0.70-0.78.
+
+### 3.5 Perform cross-validation to compare the performance of different logistic regression models
+
+We start with a very high number of predictors and explore the changes in the training and testing errors as we move to models with less predictors.
+
+First, we include 34 predictors in our dataset. It turns out that we get the accuracy of 0.997 or just 0.003 error. However, we also get a warning that the glm.fit algorith did not converge meaning that the prediction of our estimate may be misleading. See the R script and its output below.
+
+```{r}
+# define training control
+train_control <- trainControl(method = "cv", number = 10)
+
+# train the model on training set
+modelcv2 <- train(factor(high_use) ~ .,
+               data = mydata,
+               trControl = train_control,
+               method = "glm",
+               family=binomial())
+
+# print cv scores
+modelcv2$results
+```
+\
+Second, we include < 34 predictors, i.e. 17 predictors. It turns out that we get the accuracy of 0.754 or just 0.0.246 error. It seems that we get a better accuracy or a lower error compared to the 4-predictor model. See the R script and its output below.
+
+```{r}
+# define training control
+train_control <- trainControl(method = "cv", number = 10)
+
+# train the model on training set
+modelcv3 <- train(factor(high_use) ~ age + famrel + goout + health + school + sex + Medu + Fedu + Mjob + Fjob + studytime + traveltime + nursery + higher + internet + freetime + G3,
+               data = mydata,
+               trControl = train_control,
+               method = "glm",
+               family=binomial())
+
+# print cv scores
+modelcv3
+```
+Third, we experiment with 10 predictors without our chosen 4-predictor as in our original model. Now we get accuracy score of 0.711 or 0.289 error, a higher error than our original 4-predictor model. Hence, we conjecture that there is an optimum point to get the best model (which has the highest accuracy or the lowest error) conditional on the predictors to be used. More predictors do not guarantee better results, but more **appropriate** predictors do.
+
+```{r}
+# define training control
+train_control <- trainControl(method = "cv", number = 10)
+
+# train the model on training set
+modelcv4 <- train(factor(high_use) ~ guardian + school + sex + studytime + traveltime + nursery + higher + internet + freetime + G3,
+               data = mydata,
+               trControl = train_control,
+               method = "glm",
+               family=binomial())
+
+# print cv scores
+modelcv4
+```
+Finally, we draw a graph displaying the trends of both training and testing errors by the number of predictors in the model. It suggests that the best results we can get is by having 5 predictors only in the model. It will give accuracy of 0.851 or 0.149 error. See the R scripts and outputs below.
+
+```{r}
+highuse_knn_mod = train(
+  factor(high_use) ~ .,
+  data = mydata,
+  method = "knn",
+  trControl = trainControl(method = "cv", number = 10),
+  preProcess = c("center", "scale"),
+  tuneGrid = expand.grid(k = seq(1, 34, by = 2))
+)
+
+ggplot(highuse_knn_mod) + theme_bw()
+
+```
+```{r}
+#highuse_knn_mod$bestTune
+get_best_result = function(caret_fit) {
+  best = which(rownames(caret_fit$results) == rownames(caret_fit$bestTune))
+  best_result = caret_fit$results[best, ]
+  rownames(best_result) = NULL
+  best_result
+}
+get_best_result(highuse_knn_mod)
+```
+
+_This is the end of the report_
+
+```{r}
+date()
+
+```
+
+
