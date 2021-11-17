@@ -24,7 +24,7 @@ And the dataset produced is **data_alc.csv** file in the same folder.
 
 ### 3.1 Explore the data
 
-Let's us firstly run the R script below and print the outputs. We then proceed by reading the outputs.
+Let's us firstly run the R script below to read the data files and print the outputs. We then proceed by reading the outputs.
 
 ```{r}
 
@@ -43,6 +43,7 @@ summary(mydata)
 str(mydata)
 ```
 **Brief description about the dataset** \
+
 The original source of the data is here: https://archive.ics.uci.edu/ml/datasets/Student+Performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por) which then we join the two datasets becoming one dataset as we use for the analysis in the next section. There are originally 33 attributes and then we construct 2 additional attributes, i.e. (1) alcohol consumption which is the average of the answers related to weekday and weekend alcohol consumption, and (2) logical class of data for attribute of high consumption of alcohol defined by attribute of alcohol consumption >2. Altogether, we have 370 observations of 35 attributes. The detail description of the original 33 attributes can be seen in the provided link. 
 
 ### 3.2 Explore the distributions of the variables
@@ -50,46 +51,38 @@ The original source of the data is here: https://archive.ics.uci.edu/ml/datasets
 To study the relationships between high/low alcohol consumption and some of the other variables, we start with choosing 4 variables from the dataset and we present your personal hypothesis about their relationships with alcohol consumption. First, **age**, our hypothesis is that the older the student is, the more he/she will consume alcohol. Second, **famrel (quality of family relationships)**, our hypothesis is that the higher quality, the less a student consumes alcohol since he/she will have more time spent with family. Third, **goout (going out with friends)**, our hypothesis is that the more goout, the more consumption of alcohol is. Finally, **health (current health status)**, our hypothesis is that a student with a bad health condition will consume less alcohol.
 
 Let's now we numerically and graphically explore the distributions of the chosen variables and their relationships with alcohol consumption using: \
-- cross-tabulations, \
-- bar plots, and \
-- box plots.
+1. cross-tabulations, and \
+2. bar and box plots. \
 
 Cross-tabulations of alcohol consumption with age is given below:
 
 ```{r}
-table(mydata$alc_use, mydata$age)
+library(janitor)
+#tabyl(mydata, age, alc_use, high_use) %>%
+#  adorn_percentages("row") %>%
+#  adorn_pct_formatting(digits = 2)
+tabyl(mydata, age, alc_use, high_use)
 ```
-```{r}
-table(mydata$high_use, mydata$age)
-```
+
+
 Cross-tabulations of alcohol consumption with family relation is given below:
 
 ```{r}
-table(mydata$alc_use, mydata$famrel)
+tabyl(mydata, famrel, alc_use, high_use)
 ```
 
-
-```{r}
-table(mydata$high_use, mydata$famrel)
-```
 Cross-tabulations of alcohol consumption with 'go out with friends' is given below:
 
 ```{r}
-table(mydata$alc_use, mydata$goout)
+tabyl(mydata, goout, alc_use, high_use)
 ```
 
-```{r}
-table(mydata$high_use, mydata$goout)
-```
 Cross-tabulations of alcohol consumption with health is given below:
 
 ```{r}
-table(mydata$alc_use, mydata$health)
+tabyl(mydata, health, alc_use, high_use)
 ```
 
-```{r}
-table(mydata$high_use, mydata$health)
-```
 Using barplots and boxplots:
 
 First, the plots of alcohol consumption and age
@@ -177,7 +170,7 @@ We start with a very high number of predictors and explore the changes in the tr
 
 First, we include 34 predictors in our dataset. It turns out that we get the accuracy of 0.997 or just 0.003 error. However, we also get a warning that the glm.fit algorith did not converge meaning that the prediction of our estimate may be misleading. See the R script and its output below.
 
-```{r}
+```{r, warning = FALSE}
 # define training control
 train_control <- trainControl(method = "cv", number = 10)
 
