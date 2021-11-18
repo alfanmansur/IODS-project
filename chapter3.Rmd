@@ -15,12 +15,12 @@ In this Chapter we work on data from two questionnaires related to student perfo
 
 * This report follows the following logic: R script used --> ouputs --> explanations.
 
-## Part 1: data wrangling
+### Part 1: data wrangling
 
 We join two data sets together and create an analysis dataset for the analysis exercise. To produce the dataset, see **create_alc.R** file in the folder **data** here: https://github.com/alfanmansur/IODS-project/tree/master/data.
 And the dataset produced is **data_alc.csv** file in the same folder.
 
-## Part 2: data analysis with logistic regression
+### Part 2: data analysis with logistic regression
 
 In this part, We use the following R packages to produce the intended outputs: 
 
@@ -34,7 +34,7 @@ library(caret)   # this is to perform cross validations
 
 We then proceed by firstly run the R script, print some outputs and then read the outputs.
 
-### 3.1 Explore the data
+## 3.1 Explore the data
 
 
 ```{r}
@@ -58,7 +58,7 @@ str(mydata)      #to see the data structure
 
 The original source of the data is here: https://archive.ics.uci.edu/ml/datasets/Student+Performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por) which then we join the two datasets becoming one dataset as we use for the analysis in the next section. There are originally 33 attributes and then we construct 2 additional attributes, i.e. (1) alcohol consumption which is the average of the answers related to weekday and weekend alcohol consumption, and (2) logical class of data for attribute of high consumption of alcohol defined by attribute of alcohol consumption >2. Altogether, we have 370 observations of 35 attributes. The detail description of the original 33 attributes can be seen in the provided link. 
 
-### 3.2 Explore the distributions of the variables
+## 3.2 Explore the distributions of the variables
 
 To study the relationships between high/low alcohol consumption and some of the other variables, we start with choosing 4 variables from the dataset and we present our personal hypothesis about their relationships with alcohol consumption. **First**, **_age_**, our hypothesis is that the younger the student is, the more he/she will consume alcohol as the ages range between 15-22 years old. Teenagers usually are curious to try many things. **Second**, **_famrel (quality of family relationships)_**, our hypothesis is that the higher quality, the less a student consumes alcohol since he/she will have more time spent with family. Third, **_goout (going out with friends)_**, our hypothesis is that the more frequent going out with friends, the more consumption of alcohol is. Finally, **_health (current health status)_**, our hypothesis is that a student with a bad health condition will consume less alcohol.
 
@@ -120,7 +120,7 @@ ggarrange(a, b, c, d,
 ```
 \
 
-### 3.3 Fit a logistic regression model
+## 3.3 Fit a logistic regression model
 
 Our target (dependent) variable is the high consumption of alcohol and our regressors are the four variables of age, famrel, goout, health.
 
@@ -136,7 +136,7 @@ Interpret the results and compare them to your previously stated hypothesis
 
 explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.
 
-### 3.4. Perform 10-fold cross-validation on the model
+## 3.4. Perform 10-fold cross-validation on the model
 
 Here we perform 10-fold cross-validation of the model using the 'caret' package in R as follows:
 
@@ -164,7 +164,7 @@ modelcv$results
 
 Given the AccuracySD of about 0.04, then our accuracy is around 0.70-0.78.
 
-### 3.5 Perform cross-validation to compare the performance of different logistic regression models
+## 3.5 Perform cross-validation to compare the performance of different logistic regression models
 
 We start with a very high number of predictors and explore the changes in the training and testing errors as we move to models with less predictors.
 
