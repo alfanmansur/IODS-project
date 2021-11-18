@@ -22,9 +22,20 @@ And the dataset produced is **data_alc.csv** file in the same folder.
 
 ## Part 2: data analysis with logistic regression
 
+In this part, We use the following R packages to produce the intended outputs: 
+
+```{r, results="hide", message=FALSE}
+library(janitor) # this is to do cross tabulations
+library(ggplot2) # this is to produce bar and box-plots, together with the next one. 
+library(ggpubr)  # this is to combine plots in one frame
+library(dplyr)
+library(caret)   # this is to perform cross validations
+```
+
+We then proceed by firstly run the R script, print some outputs and then read the outputs.
+
 ### 3.1 Explore the data
 
-Let's us firstly run the R script below to read the data files and print the outputs. We then proceed by reading the outputs.
 
 ```{r}
 
@@ -36,88 +47,78 @@ data <- read.csv("https://github.com/rsund/IODS-project/raw/master/data/alc.csv"
                  header = TRUE, sep = ",")
 # Comparing those two datasets, my constructed dataset is just exactly the same as the dataset given in the link, except the variables ending with ".p" or ".m" which I don't include in my dataset as we don't need them for analysis.
 
-colnames(mydata)
+colnames(mydata)  #to see the names of all variables in the dataset
 ```
-```{r}
-summary(mydata)
-str(mydata)
+```{r, results="hide", , message=FALSE}
+summary <- summary(mydata)   #to see the summary of each variable, but is unnecessary to display all the details in the report
+str(mydata)      #to see the data structure
 ```
+\
 **Brief description about the dataset** \
 
 The original source of the data is here: https://archive.ics.uci.edu/ml/datasets/Student+Performance. This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features) and it was collected by using school reports and questionnaires. Two datasets are provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por) which then we join the two datasets becoming one dataset as we use for the analysis in the next section. There are originally 33 attributes and then we construct 2 additional attributes, i.e. (1) alcohol consumption which is the average of the answers related to weekday and weekend alcohol consumption, and (2) logical class of data for attribute of high consumption of alcohol defined by attribute of alcohol consumption >2. Altogether, we have 370 observations of 35 attributes. The detail description of the original 33 attributes can be seen in the provided link. 
 
 ### 3.2 Explore the distributions of the variables
 
-To study the relationships between high/low alcohol consumption and some of the other variables, we start with choosing 4 variables from the dataset and we present your personal hypothesis about their relationships with alcohol consumption. First, **age**, our hypothesis is that the older the student is, the more he/she will consume alcohol. Second, **famrel (quality of family relationships)**, our hypothesis is that the higher quality, the less a student consumes alcohol since he/she will have more time spent with family. Third, **goout (going out with friends)**, our hypothesis is that the more goout, the more consumption of alcohol is. Finally, **health (current health status)**, our hypothesis is that a student with a bad health condition will consume less alcohol.
+To study the relationships between high/low alcohol consumption and some of the other variables, we start with choosing 4 variables from the dataset and we present our personal hypothesis about their relationships with alcohol consumption. **First**, **_age_**, our hypothesis is that the younger the student is, the more he/she will consume alcohol as the ages range between 15-22 years old. Teenagers usually are curious to try many things. **Second**, **_famrel (quality of family relationships)_**, our hypothesis is that the higher quality, the less a student consumes alcohol since he/she will have more time spent with family. Third, **_goout (going out with friends)_**, our hypothesis is that the more frequent going out with friends, the more consumption of alcohol is. Finally, **_health (current health status)_**, our hypothesis is that a student with a bad health condition will consume less alcohol.
 
 Let's now we numerically and graphically explore the distributions of the chosen variables and their relationships with alcohol consumption using: \
 1. cross-tabulations, and \
 2. bar and box plots. \
 
-Cross-tabulations of alcohol consumption with age is given below:
+The Cross-tabulations of alcohol consumption with age given below counts the amount of alcohol consumed per age. It indicates that students 15-17 years old consume more alcohol than older students and students aged 17 has the highest level of high alcohol consumption (>2). More or less, this is in line with our hypothesis previously.
 
 ```{r}
-library(janitor)
 #tabyl(mydata, age, alc_use, high_use) %>%
 #  adorn_percentages("row") %>%
 #  adorn_pct_formatting(digits = 2)
 tabyl(mydata, age, alc_use, high_use)
 ```
-
-
-Cross-tabulations of alcohol consumption with family relation is given below:
+\
+Next, the cross-tabulations of alcohol consumption with family relation given below show that the better quality of family relationships, the more alcohol being consumed, both average consumption and high consumption (>2). It contradicts with our previous hypothesis. It seems that we, as a data scientist, need to understand further the possibility of cultural aspect of consuming alcohol.
 
 ```{r}
 tabyl(mydata, famrel, alc_use, high_use)
 ```
-
-Cross-tabulations of alcohol consumption with 'go out with friends' is given below:
+\
+Next, the cross-tabulations of alcohol consumption with 'go out with friends' given below indicate that consuming alcohol has not much to do with the frequency of going out with friends. Albeit so, there maybe a slight correlation that the more going out with friends is associated with high consumption of alcohol which is in line with our previous hypothesis.
 
 ```{r}
 tabyl(mydata, goout, alc_use, high_use)
 ```
 
-Cross-tabulations of alcohol consumption with health is given below:
+Finally, the cross-tabulations of alcohol consumption with health given below show that higher level of health is associated with higher consumption of alcohol which is in line with our hypothesis.
 
 ```{r}
 tabyl(mydata, health, alc_use, high_use)
 ```
 
-Using barplots and boxplots:
+We next analyze further using bar-plots and box-plots in the figure below. There are four panels in the figure: (A) the plots of average alcohol consumption and age, (B) the plots of average alcohol consumption and family relationship, (C) the plots of average alcohol consumption and frequency of going out with friends, and (D) the plots of average alcohol consumption and health. The boxplots, in particular, indicate the numbers of students consuming alcohol at every level of consumption (indicated by the y-axis on the left hand side) with the mean highlighted by the horizontal thick lin in each box. A trending up line of mean is clearly visible on panel C where higher frequency of going out with friends is associated with higher consumption of alcohol. And this is consistent with our hypothesis. The other three panels do not show clear relationships with the consumption level of alcohol. Nevertheless, we can still see the distributions, for instance in panel A, the highes level of alcohol consumption is on students aged 17-18 years old. On panel B, the highest level of mean is on family relationship level of 2 or bad relationship. On panel D, it seems that the consumption of alcohol is evenly distributed no matter the health condition is which is unappealing compared to our hypothesis.
 
-First, the plots of alcohol consumption and age
 
 ```{r}
-library(ggplot2)
-library(dplyr)
-
+# First, the plots of alcohol consumption and age
 temp <- mydata %>% group_by(age = factor(age)) %>% summarise(alc_use = mean(alc_use))
-ggplot(mydata, aes(factor(age), alc_use)) + geom_bar(data = temp, aes(age, alc_use), stat = "identity") + geom_boxplot()
-```
-\
-Second, the plots of alcohol consumption and family relation
+a <- ggplot(mydata, aes(factor(age), alc_use)) + geom_bar(data = temp, aes(age, alc_use), stat = "identity") + geom_boxplot()
 
-```{r}
-
+# Second, the plots of alcohol consumption and family relation
 temp <- mydata %>% group_by(famrel = factor(famrel)) %>% summarise(alc_use = mean(alc_use))
-ggplot(mydata, aes(factor(famrel), alc_use)) + geom_bar(data = temp, aes(famrel, alc_use), stat = "identity") + geom_boxplot()
-```
-\
-Third, the plots of alcohol consumption and 'go out with friends'
+b <- ggplot(mydata, aes(factor(famrel), alc_use)) + geom_bar(data = temp, aes(famrel, alc_use), stat = "identity") + geom_boxplot()
 
-```{r}
-
+# Third, the plots of alcohol consumption and 'go out with friends'
 temp <- mydata %>% group_by(goout = factor(goout)) %>% summarise(alc_use = mean(alc_use))
-ggplot(mydata, aes(factor(goout), alc_use)) + geom_bar(data = temp, aes(goout, alc_use), stat = "identity") + geom_boxplot()
+c <- ggplot(mydata, aes(factor(goout), alc_use)) + geom_bar(data = temp, aes(goout, alc_use), stat = "identity") + geom_boxplot()
+
+# Fourth, the plots of alcohol consumption and health condition
+temp <- mydata %>% group_by(health = factor(health)) %>% summarise(alc_use = mean(alc_use))
+d <- ggplot(mydata, aes(factor(health), alc_use)) + geom_bar(data = temp, aes(health, alc_use), stat = "identity") + geom_boxplot()
+
+ggarrange(a, b, c, d, 
+          labels = c("A", "B", "C", "D"),
+          ncol = 2, nrow = 2)
+
 ```
 \
-Fourth, the plots of alcohol consumption and health condition
-
-```{r}
-
-temp <- mydata %>% group_by(health = factor(health)) %>% summarise(alc_use = mean(alc_use))
-ggplot(mydata, aes(factor(health), alc_use)) + geom_bar(data = temp, aes(health, alc_use), stat = "identity") + geom_boxplot()
-```
 
 ### 3.3 Fit a logistic regression model
 
@@ -140,7 +141,6 @@ explore the predictive power of you model. Provide a 2x2 cross tabulation of pre
 Here we perform 10-fold cross-validation of the model using the 'caret' package in R as follows:
 
 ```{r}
-library(caret)
 # define training control
 train_control <- trainControl(method = "cv", number = 10)
 
@@ -217,7 +217,7 @@ modelcv4 <- train(factor(high_use) ~ guardian + school + sex + studytime + trave
 # print cv scores
 modelcv4
 ```
-Finally, we draw a graph displaying the trends of both training and testing errors by the number of predictors in the model. It suggests that the best results we can get is by having 5 predictors only in the model. It will give accuracy of 0.851 or 0.149 error. See the R scripts and outputs below.
+Finally, we draw a graph displaying the trends of both training and testing errors by the number of predictors in the model. It suggests that the best results we can get is by having 5-7 predictors only in the model. It will give accuracy of 0.849-0.851 or 0.149-0.151 error. See the R scripts and outputs below.
 
 ```{r}
 highuse_knn_mod = train(
