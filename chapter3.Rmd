@@ -36,6 +36,7 @@ We then proceed by firstly run the R script, print some outputs and then read th
 
 ## 3.1 Explore the data
 
+We start with exploring the dataset including its structure and summary.
 
 ```{r}
 
@@ -122,19 +123,72 @@ ggarrange(a, b, c, d,
 
 ## 3.3 Fit a logistic regression model
 
-Our target (dependent) variable is the high consumption of alcohol and our regressors are the four variables of age, famrel, goout, health.
+Our target (dependent) variable is the high consumption of alcohol and our regressors are the four variables of age, famrel, goout, health. The following R code estimates a logistic regression model using the glm (generalized linear model) function. 
 
 ```{r}
 model <- glm( high_use ~ age + famrel + goout + health, data = mydata, family = binomial)
 summary(model)
 ```
-Present and interpret a summary of the fitted model:
+* To interpret the results above, we adopt some materials from: https://stats.idre.ucla.edu/r/dae/logit-regression/
+* From the summary of the fitted model above, the Deviance Residuals (displayed above the coefficients) indicate the distribution of the deviance residuals for individual cases used in the model. Moreover, we can measure the model fit using the results of Null deviance and the Residual deviance (displayed below the coefficients). We can test the significance of the overall model by comparing to the null model, i.e. the model with an intercept only (without the predictors). 
 
-Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. 
+** First, we find the difference in deviance for the two competing models as for the test statistic as follows:
 
-Interpret the results and compare them to your previously stated hypothesis
+```{r}
+with(model, null.deviance - deviance)
+```
+** The test statistic follows a chi-squared distribution with the degrees of freedom for the difference between the two competing models as follows:
 
-explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy.
+```{r}
+with(model, df.null - df.residual)
+```
+** Then we can compute the p-value as:
+
+```{r}
+with(model, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
+```
+** The chi-square of 63.56 with 4 degrees of freedom and a p-value of less than 0.001 shows that our model fits significantly better than an empty model or the null model.
+
+* Next we move to interpret the coefficients. Overall, together with the coefficients, the output also displays the standard errors, Wald z-statistic, and the p-values. From our four predictors, three are statistically significant, i.e. 'famre', 'goout', and 'health'. The coefficients give the change in the log odds of the outcome for a one unit increase in the predictor variable.
+
+* To interpret the coefficients as odds-ratios as well as their confidence intervals, we need to exponentiate the coefficients as follows:
+
+```{r}
+exp(cbind(OR = coef(model), confint(model)))
+```
+* We can interpret the odds-ratios as follows:
+
+** For one unit increase in 'famrel', there is a 36% lower likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 16%-51% lower the likelihood of having high consumption of alcohol. As in the crosstabulation results, it contradicts with our previous hypothesis. It seems that we, as a data scientist, need to understand further the possibility of cultural aspect of consuming alcohol, in which more getting together with family, there is more probability of high consumption of alcohol.
+
+** For one unit increase in 'goout', there is 2.20 times higher likelihood of having high consumption of alcohol. Within 95% confidence interval, the likelihood is 1.75-2.81 times higher. This is consistent with our hypothesis of more often going out with friends is associated with more consumption of alcohol.
+
+** Lastly, for one unit increase in 'health', there is a 22% higher the likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 2%-47% higher the likelihood of having high consumption of alcohol. This is also consistent with our hypothesis.
+
+Next, we explore the predictive power of our model by provide a 2x2 cross tabulation of predictions versus the actual values and display a graphic visualizing both the actual values and the predictions.
+
+```{r}
+mydata$high_useP <- predict(model, newdata = mydata, type = "response")
+mydata$high_useP = mydata$high_useP > 0.5
+table(mydata$high_useP, mydata$high_use) #Produce 2x2 cross tabulation of predictions vs the actual values
+```
+\
+The output displays a 2x2 matrix of the predictions and the actual values. We can see that there are 235+44=279 correct predictions or 75.41% out of 370 individuals. Hence the error is about 24.59%. When we see each actual values of FALSE and TRUE, out of 259 actual FALSE values, 235 predictions are correct and 24 predictions are wrong, so the error is about 9%. Then out of 111 actual TRUE values, 67 predictions are correct and 44 predictions are wrong, so the error is about 40%. Graphically, the proportions can be seen below.
+
+```{r}
+df <- as.data.frame(cbind(mydata$high_use, mydata$high_useP))
+
+ggplot(df,aes(x = mydata$high_use, fill = mydata$high_useP)) + 
+    geom_bar(position = "fill")
+```
+\
+Now we compare the performance of the model with performance achieved by some simple guessing strategy. We use three variables of famrel, go out, and health as they are all statistically significant. Since they have the same scal of 1-5 and have positive correlation with the high consumption of alcohol, we simply predict that if the sum of the values of the three variables > 7.5, we predict that high consumption of alcohol is TRUE, otherwise it is FALSE. The output below shows 23+108=131 correct predictions or accuracy of 35.41% or the error is 64.59%, hence our model performs better.
+
+```{r}
+high_use_simpleP <- mydata$famrel+mydata$goout+mydata$health > 7.5
+table(high_use_simpleP, mydata$high_use) #Produce 2x2 cross tabulation of simple predictions vs the actual values
+```
+\
+
 
 ## 3.4. Perform 10-fold cross-validation on the model
 
