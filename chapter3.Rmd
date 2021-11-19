@@ -159,7 +159,7 @@ exp(cbind(OR = coef(model), confint(model)))
 ```
 We can interpret the odds-ratios as follows:
 
-* For one unit increase in 'famrel', there is a 36% lower likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 16%-51% lower the likelihood of having high consumption of alcohol. This result is in line with our previous hypothesis that the better family relationship is, the less alcohol being consumed with argument that the student spends more time with family doing activities together.
+* For one unit increase in 'famrel', there is a 36% lower likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 16%-51% lower the likelihood of having high consumption of alcohol. This result is in line with our previous hypothesis that the better family relationship is, the less alcohol consumed is, with argument that the student spends more time with family doing activities together.
 
 * For one unit increase in 'goout', there is 2.20 times higher likelihood of having high consumption of alcohol. Within 95% confidence interval, the likelihood is 1.75-2.81 times higher. This is consistent with our hypothesis of more often going out with friends is associated with more consumption of alcohol.
 
@@ -209,7 +209,7 @@ modelcv <- train(factor(high_use) ~ age + famrel + goout + health,
 # print cv scores
 modelcv
 ```
-Note that, 'caret' package is an optimist, and prefers to report accuracy (proportion of correct classifications) instead of the error (proportion of incorrect classifications). So, referring to our result here, Accuracy of 0.74 is equivalent to error of 0.26 or just about the same with the model introduced in DataCamp (which had about 0.26 error).
+Note that, 'caret' package is an optimist, and prefers to report accuracy (proportion of correct classifications) instead of the error (proportion of incorrect classifications). So, referring to our result here, Accuracy of 0.76 is equivalent to error of 0.24 or slightly better than the model introduced in DataCamp (which had about 0.26 error).
 
 In case we want to take into account the uncertainty in our accuracy estimate, we may consider the accuracy standard deviation as presented below:
 
@@ -217,7 +217,7 @@ In case we want to take into account the uncertainty in our accuracy estimate, w
 modelcv$results
 ```
 
-Given the AccuracySD of about 0.04, then our accuracy is around 0.70-0.78.
+Given the AccuracySD of about 0.05, then our accuracy is around 0.71-0.81.
 
 ## 3.5 Perform cross-validation to compare the performance of different logistic regression models
 
