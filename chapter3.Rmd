@@ -159,7 +159,7 @@ exp(cbind(OR = coef(model), confint(model)))
 ```
 We can interpret the odds-ratios as follows:
 
-* For one unit increase in 'famrel', there is a 36% lower likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 16%-51% lower the likelihood of having high consumption of alcohol. As in the crosstabulation results, it contradicts with our previous hypothesis. It seems that we, as a data scientist, need to understand further the possibility of cultural aspect of consuming alcohol, in which more getting together with family, there is more probability of high consumption of alcohol.
+* For one unit increase in 'famrel', there is a 36% lower likelihood of having high consumption of alcohol. Within 95% confidence interval, there is 16%-51% lower the likelihood of having high consumption of alcohol. This result is in line with our previous hypothesis that the better family relationship is, the less alcohol being consumed with argument that the student spends more time with family doing activities together.
 
 * For one unit increase in 'goout', there is 2.20 times higher likelihood of having high consumption of alcohol. Within 95% confidence interval, the likelihood is 1.75-2.81 times higher. This is consistent with our hypothesis of more often going out with friends is associated with more consumption of alcohol.
 
