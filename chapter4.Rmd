@@ -7,13 +7,13 @@ editor_options:
 
 *Summary of the week (completed work and learning)*
 
-In this Chapter we work on data from two questionnaires related to student performance (especially including alcohol consumption). We cover two parts: (1) data wrangling and (2) data analysis with logistic regression.\
+In this Chapter We cover two parts:\
 
-* In data analysis, we analyze the Boston data from the MASS package using a linear discriminant analysis on the train set.\
+* Data analysis: we analyze the Boston data from the MASS package using a linear discriminant analysis on the train set.\
 
-* In data wrangling, we create a new R script called create_human.R, “Human development” and “Gender inequality” data into R.\
+* Data wrangling: we create a new R script called create_human.R, “Human development” and “Gender inequality” data into R.\
 
-### Part 1: data anaylisis
+### Part 1: data analysis
 
 In this part, We use the following R packages: 
 
@@ -22,7 +22,7 @@ library(ggplot2) # to produce plots
 library(GGally)
 library(ggpubr)  # this is to combine plots in one frame
 library(dplyr)
-library("tidyr") # to plot multiple densities and histograms
+library(tidyr)   # to plot multiple densities and histograms
 library(caret)   # to perform cross validations
 ```
 
@@ -162,7 +162,7 @@ k5 <- kmeans(data, centers = 5, nstart = 25) # k=5 clusters
 str(k2)
 ```
 
-We continue to visualize the clusters. The visualization tells us tells us where true dilineations occur. To evaluate further what the optimal number of clusters is, we rely on the so-called "Average Silhouette Method". In short, the method measures how well each object lies within its cluster. A high average silhouette width indicates a good clustering. Based on the results, we find that the optimum number of clusters is 2.
+We continue to visualize the clusters. The visualization tells us where true dilineations occur. To evaluate further what the optimal number of clusters is, we rely on the so-called "Average Silhouette Method". In short, the method measures how well each object lies within its cluster. A high average silhouette width indicates a good clustering. Based on the results, we find that the optimum number of clusters is 2.
 
 ```{r}
 # plots to compare
@@ -178,33 +178,19 @@ grid.arrange(p1, p2, p3, p4, nrow = 2)
 fviz_nbclust(data, kmeans, method = "silhouette")
 ```
 
-## Bonus
-
-Perform k-means on the original Boston data with some reasonable number of clusters (> 2). Remember to standardize the dataset. Then perform LDA using the clusters as target classes. Include all the variables in the Boston data in the LDA model. Visualize the results with a biplot (include arrows representing the relationships of the original variables to the LDA solution). Interpret the results. Which variables are the most influencial linear separators for the clusters? (0-2 points to compensate any loss of points from the above exercises)
-
-## Super bonus
-
-Super-Bonus: Run the code below for the (scaled) train data that you used to fit the LDA. The code creates a matrix product, which is a projection of the data points.
-```{r}
-model_predictors <- dplyr::select(train, -crime)
-# check the dimensions
-dim(model_predictors)
-dim(lda.fit$scaling)
-# matrix multiplication
-matrix_product <- as.matrix(model_predictors) %*% lda.fit$scaling
-matrix_product <- as.data.frame(matrix_product)
-```
-```{r, results="hide", message=FALSE, warning=FALSE}
-library(plotly)
-```
-```{r}
-plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers')
-```
-
-Adjust the code: add argument color as a argument in the plot_ly() function. Set the color to be the crime classes of the train set. Draw another 3D plot where the color is defined by the clusters of the k-means. How do the plots differ? Are there any similarities? (0-3 points to compensate any loss of points from the above exercises)
-
 ### Part 2: data wrangling
 
-We create a new R script called create_human.R here: 
+We create a new R script called create_human.R here: https://github.com/alfanmansur/IODS-project/blob/master/data/create_human.R
+
+
+_This is the end of the report_
+
+```{r}
+date()
+
+```
+
+
+
 
 
