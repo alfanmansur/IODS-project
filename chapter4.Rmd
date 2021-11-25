@@ -1,0 +1,210 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Chapter 4 Clustering and classification
+
+*Summary of the week (completed work and learning)*
+
+In this Chapter we work on data from two questionnaires related to student performance (especially including alcohol consumption). We cover two parts: (1) data wrangling and (2) data analysis with logistic regression.\
+
+* In data analysis, we analyze the Boston data from the MASS package using a linear discriminant analysis on the train set.\
+
+* In data wrangling, we create a new R script called create_human.R, “Human development” and “Gender inequality” data into R.\
+
+### Part 1: data anaylisis
+
+In this part, We use the following R packages: 
+
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2) # to produce plots
+library(GGally)
+library(ggpubr)  # this is to combine plots in one frame
+library(dplyr)
+library("tidyr") # to plot multiple densities and histograms
+library(caret)   # to perform cross validations
+```
+
+We then proceed by firstly run the R script, print some outputs and then read the outputs.
+
+## 4.1 Explore the data
+
+We load the Boston data from the MASS package and look at the structure as well as the summary as follows:
+
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+# access the MASS package
+library(MASS)
+```
+```{r}
+# load the data
+data("Boston")
+str(Boston) # explore the structure
+```
+```{r}
+summary(Boston) #print summary
+```
+\
+**Brief description about the dataset** \
+
+This is data of housing Values in Suburbs of Boston. We have 506 observations of 14 variables which the description of each variabel in details can be seen here: https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html. From the summary, we can see that there is a wide range of different scales of the variables in the dataset.
+
+## 4.2 Graphical overview
+
+Here, we show a graphical overview of the data. We especially look at the distributions and correlations between the variables. From the histograms and density plots, most variables are not normally distributed and most feature long tails. Among all variables, 'medv' and 'rm' seem normally distributed. Then from the correlograms, some variables pose a high degree of correlations, both positive and negative correlations. The positive correlations are highlighted by reds, while negative correlations are highlighted with blues. The highest positive correlation is between 'rad' and 'tax' (0.91) and the highest negative correlation is between 'nox' and 'dis' (0.77).
+
+
+```{r}
+
+data <- Boston %>%                          # Apply pivot_longer function
+  pivot_longer(colnames(Boston)) %>% 
+  as.data.frame()
+head(data)                                # Print head of data
+ggp <- ggplot(data, aes(x = value)) +    # Draw histogram & density
+  geom_histogram(aes(y = ..density..)) + 
+  geom_density(col = "#1b98e0", size = 2) + 
+  facet_wrap(~ name, scales = "free")
+ggp
+```
+
+```{r}
+ggcorr(Boston[colnames(Boston) != "gender"], palette = "RdBu", label = TRUE, label_round=2, label_size = 3) 
+```
+
+## 4.3 Standardize the dataset
+
+We standardize the dataset and print out summaries of the scaled data. From the summary below, we can now see that the means of the variables are all zeros. 
+
+```{r}
+data_scaled <- scale(Boston) # Use the standardize package
+summary(data_scaled)
+```
+Now we create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate) using the quantiles as the break points in the categorical variable and then we drop the old crime rate variable from the dataset. We then divide the dataset to train and test sets, so that 80% of the data belongs to the train set. We hence have 404 observations in the train set and 102 observations in the test set.
+
+```{r}
+#create a categorical crime rate variable
+newcrime <- as.factor(ifelse(data_scaled[1:506, 1] < 0.08205, 'A',
+                          ifelse(data_scaled[1:506, 1] < 0.25651, 'B', 
+                          ifelse(data_scaled[1:506, 1] < 3.61352, 'C', 
+                          ifelse(data_scaled[1:506, 1] < 3.67708, 'D',0)))))
+
+newdata <- data.frame(newcrime, data_scaled[1:506, 2:14]) # Drop the old crime rate variable & put the new variable into it.
+# divide the dataset to train and test sets
+## 80% of the sample size
+smp_size <- floor(0.80 * nrow(newdata))
+
+## set the seed to make partition reproducible
+set.seed(1235)
+train_ind <- sample(seq_len(nrow(newdata)), size = smp_size)
+
+train <- newdata[train_ind, ]
+test <- newdata[-train_ind, ]
+
+```
+
+## 4.4 Fit the linear discriminant analysis on the train set
+
+Next, we fit a linear discriminant analysis on the train set. We use the categorical crime rate as the target variable and all the other variables in the dataset as predictor variables. We then draw the LDA (bi)plot.
+
+```{r}
+model <- lda(train$newcrime~., data = train)
+model
+```
+
+```{r}
+# Draw the LDA (bi)plot
+plot(model)
+```
+
+## 4.5 Predict with the LDA model
+
+Here, we save the crime categories from the test set and then remove the categorical crime variable from the test dataset. We then predict the classes with the LDA model on the test data and cross tabulate the results with the crime categories from the test set. 
+
+```{r}
+# save the crime categories from the test set
+crime_test <- test$newcrime
+# remove the categorical crime variable from the test dataset.
+test <- subset(test, select = -newcrime)
+# predict the classes with the LDA model
+predictions <- model %>% predict(test)
+# cross tabulate the results
+table(predictions$class, crime_test) 
+```
+\
+Based on the prediction results above, we have 18+65+2=85 correct predictions or accuracy of 83.33%, hence the error is about 16.67%.
+
+## 4.6 Run k-means algorithm
+
+Here, we reload the Boston dataset and standardize the dataset. We then calculate the distances between the observations. The computation of the distances below is based on Euclidean distance. The visualization is the visualization of the distance matrix which seems posing too large dimensions.
+
+```{r}
+# reload data and standardize
+data("Boston")
+data <- scale(Boston) # Use the standardize package
+```
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+library(tidyverse)  # for data manipulation
+library(cluster)    # for clustering algorithms
+library(factoextra) # for clustering algorithms & visualization
+```
+```{r}
+distance <- get_dist(data)
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+```
+
+We now run k-means algorithm on the dataset and investigate what is the optimal number of clusters and run the algorithm again. We adopt some R packages from here: https://uc-r.github.io/kmeans_clustering#distance. 
+
+```{r}
+k2 <- kmeans(data, centers = 2, nstart = 25) # k=2 clusters
+k3 <- kmeans(data, centers = 3, nstart = 25) # k=3 clusters
+k4 <- kmeans(data, centers = 4, nstart = 25) # k=4 clusters
+k5 <- kmeans(data, centers = 5, nstart = 25) # k=5 clusters
+str(k2)
+```
+
+We continue to visualize the clusters. The visualization tells us tells us where true dilineations occur. To evaluate further what the optimal number of clusters is, we rely on the so-called "Average Silhouette Method". In short, the method measures how well each object lies within its cluster. A high average silhouette width indicates a good clustering. Based on the results, we find that the optimum number of clusters is 2.
+
+```{r}
+# plots to compare
+p1 <- fviz_cluster(k2, geom = "point", data = data) + ggtitle("k = 2")
+p2 <- fviz_cluster(k3, geom = "point",  data = data) + ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point",  data = data) + ggtitle("k = 4")
+p4 <- fviz_cluster(k5, geom = "point",  data = data) + ggtitle("k = 5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+```
+```{r}
+fviz_nbclust(data, kmeans, method = "silhouette")
+```
+
+## Bonus
+
+Perform k-means on the original Boston data with some reasonable number of clusters (> 2). Remember to standardize the dataset. Then perform LDA using the clusters as target classes. Include all the variables in the Boston data in the LDA model. Visualize the results with a biplot (include arrows representing the relationships of the original variables to the LDA solution). Interpret the results. Which variables are the most influencial linear separators for the clusters? (0-2 points to compensate any loss of points from the above exercises)
+
+## Super bonus
+
+Super-Bonus: Run the code below for the (scaled) train data that you used to fit the LDA. The code creates a matrix product, which is a projection of the data points.
+```{r}
+model_predictors <- dplyr::select(train, -crime)
+# check the dimensions
+dim(model_predictors)
+dim(lda.fit$scaling)
+# matrix multiplication
+matrix_product <- as.matrix(model_predictors) %*% lda.fit$scaling
+matrix_product <- as.data.frame(matrix_product)
+```
+```{r, results="hide", message=FALSE, warning=FALSE}
+library(plotly)
+```
+```{r}
+plot_ly(x = matrix_product$LD1, y = matrix_product$LD2, z = matrix_product$LD3, type= 'scatter3d', mode='markers')
+```
+
+Adjust the code: add argument color as a argument in the plot_ly() function. Set the color to be the crime classes of the train set. Draw another 3D plot where the color is defined by the clusters of the k-means. How do the plots differ? Are there any similarities? (0-3 points to compensate any loss of points from the above exercises)
+
+### Part 2: data wrangling
+
+We create a new R script called create_human.R here: 
+
+
