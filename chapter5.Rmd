@@ -1,0 +1,174 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+# Chapter 5 Dimensionality reduction techniques
+
+*Summary of the week (completed work and learning)*
+
+In this Chapter We cover two parts:\
+
+* Part 1 data wrangling: we continue the R script create_human.R.\
+
+* Part 2 data analysis: we analyze the data of Human Development Index (HDI) which originates from the United Nations Development Program. We utilize Principal Component Analysis (PCA) and Multiple Correspondence Analysis (MCA) techniques.\
+
+We use the following R packages: 
+
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2) # to produce plots
+library(GGally)
+library(ggpubr)  # this is to combine plots in one frame
+library(dplyr)
+library(tidyr)   # to plot multiple densities and histograms
+#library(caret)   # to perform cross validations
+```
+
+## 5.1 Graphical overview of the data
+
+The dataset is about Human Development Index (HDI) composed from a number of indicators measuring several various dimensions as described here: http://hdr.undp.org/en/content/human-development-index-hdi and here: http://hdr.undp.org/sites/default/files/hdr2015_technical_notes.pdf for more technical details.
+
+The dataset covers 155 countries and consists of 8 variables, i.e. \
+(1) ratio of mean years of education between female and male ("Edu2.FM") \
+(2) ratio of labor force participation rate between female and female ("Labo.FM") \
+(3) life expectancy at birth ("Life.Exp") \
+(4) expected years of education ("Edu.Exp") \
+(5) Gross National Income per capita ("GNI") \
+(6) maternal mortality ratio ("Mat.Mor") \
+(7) adolescent birth rate ("Ado.Birth"), and \ 
+(8) percentage of female representation in Parliament ("Parli.F").
+
+We present summaries of the variables in the data below. From the structure of the dataset, all variables are numerical variables of which 7 variables are double precision floating point numbers and 1 variable is integer. Based on the summary, we can see that we have a diverse range of series, except between "Edu2.FM" and "Labo.FM" as both are ratios.
+
+```{r}
+# load the data
+human <- read.csv('./data/human.csv', row.names=1)
+str(human) # explore the structure
+summary(human)
+```
+\
+We now display a graphical overview of each variable together with their correlations between them. From the distribution plots, we have only "Edu.Exp" and "Parli.F" which are close to density of a normal distribution. 
+
+In terms of the relationships between them, many variables are significantly correlated to each other. The highest positive correlation is between "Edu.Exp" and "Life.Exp" (0.789) and the highest negative correlation is between "Mat.Mor" and "Life.Exp" (-0.857). All the correlations between variables can be seen from the outputs of "ggpairs" and "ggcorr" R packages below.
+
+
+```{r}
+ggpairs(human)
+```
+
+```{r}
+ggcorr(human, palette = "RdBu", label = TRUE, label_round=2, label_size = 3) 
+```
+
+## 5.2 Perform principal component analysis (PCA)
+
+We continue by performing principal component analysis (PCA) on the originally constructed series (not standardized) of human data. If we look at the summary, the Cumulative Proportion shows that until the second Principal Component (PC2), it is already 98.74%, hence the 8 variables may be reduced to 2 variables only. 
+
+```{r}
+pca_human <- prcomp(human)
+summary(pca_human)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+```{r}
+# rounded percentages of variance captured by each PC
+s <- summary(pca_human)
+pca_pr <- round(100*s$importance[2,], digits = 1) #rounded percentages of variance captured by each PC
+pca_pr   #print out the percentages of variance
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)") #create object pc_lab to be used as axis labels
+# draw a biplot
+biplot(pca_human, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+```
+\
+In the figures above, we show the variability captured by the principal components and we draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables. We can see that the first two principal components account for 98.74% proportion. 
+
+## 5.3 Standardize the variables and perform PCA
+
+We now standardize the variables in the human data and repeat the principal component analysis. 
+
+```{r}
+human_std <- scale(human) #standardize the variables
+pca_human_std <- prcomp(human_std)
+summary(pca_human_std)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+```
+
+```{r}
+# rounded percentages of variance captured by each PC
+s <- summary(pca_human_std)
+pca_pr <- round(100*s$importance[2,], digits = 1) #rounded percentages of variance captured by each PC
+pca_pr   #print out the percentages of variance
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)") #create object pc_lab to be used as axis labels
+# draw a biplot
+biplot(pca_human_std, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+```
+\
+Comparing both analysis (with and without standardizing), we can see somewhat different results. Without standardizing, the first two principal components already account for 98.74%. However, now with standardizing, it needs 7 principal components to account for 98.79% of the whole variance. It means that with standardizing, the 8-variable model can now only be reduced to 7 variables. 
+If we look again the densities of the variables in the beginning, variables "GNI" and "Mat.Mor" are the two variables that feature the most non-normal distributions and we can see the divergence of these two variables in the biplot of the one without standardizing. With standardizing, it is not the case since all variables are now normally distributed with zero mean and unit variance. Hence, the results from with and without standardizing are different.
+
+## 5.4 Personal interpretations 
+
+Here we focus to interpret the biplot of the PCA on the standardized data. The plot shows the first two principal component scores and the loading vectors in a single biplot display. First, the two components (PC1 and PC2) account for 66.28% of the total variability of the whole 8-variable model where PC1 explains 49.8% of variance and PC2 explains 16.4% of the variance. Second, it seems that PCA output is concentrated more on positive side. Then, the arrows are plotted at a scale related to the maximum ratio between the scaled eigenvectors of each of the two principal components and their respective scaled scores (the ratio).
+
+
+## 5.5 The tea dataset from the package 'Factominer'
+
+We now load the tea dataset from the package Factominer. We explore the data briefly by looking at the structure and the dimensions of the data and then visualize it. 
+
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+library(FactoMineR)
+```
+
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+data("tea") #load the tea dataset
+str(tea) #explore the structure
+summary(tea)
+dim(tea) #300 obs. of 36 variables
+```
+
+We Visualize the tea data here:
+
+```{r}
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- select(tea, one_of(keep_columns))
+
+# look at the summaries and structure of the data
+summary(tea_time)
+str(tea_time)
+
+# visualize the dataset
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+```
+\
+We now perform Multiple Correspondence Analysis (MCA) on the tea data (to a certain columns of the data: only 6 columns of "Tea", "How", "how", "sugar", "where", "lunch"). 
+
+```{r}
+
+# multiple correspondence analysis
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+```
+Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots.
+
+_This is the end of the report_
+
+```{r}
+date()
+
+```
+
+
