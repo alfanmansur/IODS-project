@@ -121,6 +121,7 @@ We now load the tea dataset from the package Factominer. We explore the data bri
 
 ```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
 library(FactoMineR)
+library(factoextra)
 ```
 
 ```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
@@ -129,40 +130,168 @@ str(tea) #explore the structure
 summary(tea)
 dim(tea) #300 obs. of 36 variables
 ```
+\
+We can group the data into three groups:\
 
-We Visualize the tea data here:
+(1) Integer variables: "age" and "age_Q".\
+(2) Variables with 2 categories (yes/not): "breakfast", "tea.time", "evening", "lunch", "dinner", "always", "home", "work", "tearoom", "friends", "resto", "pub", "sugar", "sex", "Sport", "escape.exoticism", "spirituality", "healthy", "diuretic", "friendliness", "iron.absorption", "feminine", "sophisticated", "slimming", "exciting", "relaxing", "effect.on.health".\  
+(3) Variables with more than 2 categories: "Tea", "How", "how", "where", "price", "SPC", "frequency".\
+
+We then Visualize the tea data here:
 
 ```{r}
-# column names to keep in the dataset
-keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
 
-# select the 'keep_columns' to create a new dataset
-tea_time <- select(tea, one_of(keep_columns))
+group1 <- c("age", "age_Q")
+group2 <- c("breakfast", "tea.time", "evening", "lunch", "dinner", "always", "home", "work", "tearoom", "friends", "resto", "pub", "sugar", "sex", "Sport", "escape.exoticism", "spirituality", "healthy", "diuretic", "friendliness", "iron.absorption", "feminine", "sophisticated", "slimming", "exciting", "relaxing", "effect.on.health")
+group3 <- c("Tea", "How", "how", "where", "price", "SPC", "frequency")
 
-# look at the summaries and structure of the data
-summary(tea_time)
-str(tea_time)
+#Visualize group 1
+plot(tea$age,tea$age_Q)
+legend("topleft", inset=.02, title="Group of ages",
+   c("1: 15-24","2: 25-34","3: 35-44","4: 45-59","5: +60"), horiz=FALSE, cex=0.8)
+```
 
-# visualize the dataset
-gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```{r}
+#Visualize group 2 (selected variables)
+
+breakfast <- data.frame(tea$tea.time,tea$breakfast)
+eat1 = ggplot(breakfast, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$breakfast), position = "dodge")
+lunch <- data.frame(tea$tea.time,tea$lunch)
+eat2 = ggplot(lunch, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$lunch), position = "dodge")
+dinner <- data.frame(tea$tea.time,tea$dinner)
+eat3 = ggplot(dinner, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$dinner), position = "dodge")
+
+ggarrange(eat1, eat2, eat3,
+          ncol = 1, nrow = 3)
+```
+```{r}
+#Visualize group 2 (selected variables)
+home <- data.frame(tea$tea.time,tea$home)
+at1 = ggplot(home, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$home), position = "dodge")
+work <- data.frame(tea$tea.time,tea$work)
+at2 = ggplot(work, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$work), position = "dodge")
+
+ggarrange(at1, at2,
+          ncol = 1, nrow = 2)
+```
+```{r}
+#Visualize group 2 (selected variables)
+
+f1 <- data.frame(tea$tea.time,tea$escape.exoticism)
+feel1 = ggplot(f1, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$escape.exoticism), position = "dodge")
+f2 <- data.frame(tea$tea.time,tea$friendliness)
+feel2 = ggplot(f2, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$friendliness), position = "dodge")
+f3 <- data.frame(tea$tea.time,tea$exciting)
+feel3 = ggplot(f3, aes(tea$tea.time, ..count..)) + geom_bar(aes(fill = tea$exciting), position = "dodge")
+
+ggarrange(feel1, feel2, feel3,
+          ncol = 1, nrow = 3)
+```
+
+```{r}
+#Visualize group 3 (selected variables)
+group3 <- c("Tea", "How", "how", "where", "price", "SPC", "frequency")
+
+br = ggplot(tea, aes(x=reorder(Tea, Tea, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='Tea')
+tt = ggplot(tea, aes(x=reorder(How, How, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='How')
+ev = ggplot(tea, aes(x=reorder(how, how, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='how')
+lu = ggplot(tea, aes(x=reorder(where, where, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='where')
+din = ggplot(tea, aes(x=reorder(price, price, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='price')
+fr = ggplot(tea, aes(x=reorder(frequency, frequency, function(x)-length(x)))) +
+geom_bar(fill='blue') +  labs(x='frequency')
+
+ggarrange(br, tt, ev, lu, din, fr,
+          ncol = 2, nrow = 3)
 
 ```
 \
-We now perform Multiple Correspondence Analysis (MCA) on the tea data (to a certain columns of the data: only 6 columns of "Tea", "How", "how", "sugar", "where", "lunch"). 
+We now perform Multiple Correspondence Analysis (MCA) on the tea data (to a certain columns of the data: only 6 columns of "Tea", "How", "how", "sugar", "where", "breakfast"). 
+
+MCA is generally used to analyze a data set from survey. The goal is to identify: (1) A group of individuals with similar profile in their answers to the questions; and (2) The associations between variable categories. (Source: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/114-mca-multiple-correspondence-analysis-in-r-essentials/)
 
 ```{r}
+# Multiple Correspondence Analysis on the tea data
+
+teatime <- data.frame(tea$Tea,tea$How,tea$how,tea$sugar,tea$where,tea$breakfast)
+summary(teatime)
+str(teatime)
 
 # multiple correspondence analysis
-mca <- MCA(tea_time, graph = FALSE)
+mca <- MCA(teatime, graph = FALSE)
 
 # summary of the model
 summary(mca)
+```
+\
+The summary above displays eigenvalues including computed proportion of variance, the 10 first individuals, the 10 first categories, and the categorical variables. Let's now we visualize and interpret using the _factoextra_ R package that we have loaded previously.
 
+First, we visualize the percentages of inertia explained by each MCA dimensions. We can interpret, for instance, to explain at least 50% of variances, we need at least 4 dimensions (15.3%+14.5%+11.8%+10.6%=52.2%).
+
+```{r}
 # visualize MCA
-plot(mca, invisible=c("ind"), habillage = "quali")
+fviz_screeplot(mca, addlabels = TRUE, ylim = c(0, 20))
 
 ```
-Interpret the results of the MCA and draw at least the variable biplot of the analysis. You can also explore other plotting options for MCA. Comment on the output of the plots.
+\
+Next, we draw the biplot of individuals and variable categories. The biplot below shows a global pattern within the data. Rows (individuals) are represented by blue points and columns (variable categories) by red triangles. The distances between the points, either between column points or row points, measure the similarity between them. For example, individual 191 is very similar to individual 249 and individual 22 is very dissimilar to individual 31 or 168.
+
+```{r}
+# visualize MCA
+fviz_mca_biplot(mca, 
+               repel = TRUE, # Avoid text overlapping (slow if many point)
+               ggtheme = theme_minimal())
+
+```
+\
+We can also visualize the correlation between variables and MCA principal dimensions as follows. We can see that, for instance, tea.breakfast is more correlated with dimension 2, while te.where is correlated with both dimensions.
+
+```{r}
+# visualize MCA
+fviz_mca_var(mca, choice = "mca.cor", 
+            repel = TRUE, # Avoid text overlapping (slow)
+            ggtheme = theme_minimal())
+
+```
+\
+W can also highlight the most important (or contributing) variable categories on the plot below. We can see that 'unpacked' and 'tea shop' contribute to the positive pole of dimension 1, while negative to the dimension 2. Vice versa for 'milk' and 'breakfast'.
+
+```{r}
+fviz_mca_var(mca, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # avoid text overlapping (slow)
+             ggtheme = theme_minimal()
+             )
+```
+\
+We can also visualize the individuals by groups using for example the levels of the variable 'breakfast'. While 'Not.breakfast' is more to dimension 1, 'breakfast' is more to dimension 2.
+
+```{r}
+# visualize MCA
+fviz_mca_ind(mca, 
+             label = "none", # hide individual labels
+             habillage = "tea.breakfast", # color by groups 
+             palette = c("#00AFBB", "#E7B800"),
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+
+```
+\
+Finally, we can visualize individuals using multiple categorical variables at the same time. We can see that 'tea shop' contributes positively to dimension 1, while negative to dimension 2. On the other hand, 'chain store' contributes negatively to both dimension 1 and dimension 2.
+
+```{r}
+# visualize MCA
+fviz_ellipses(mca, c("tea.How", "tea.sugar", "tea.where"),
+              geom = "point")
+
+```
+
+\
+P.S. Visualizations in this MCA Section are mostly adopted from http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/114-mca-multiple-correspondence-analysis-in-r-essentials/.
 
 _This is the end of the report_
 
