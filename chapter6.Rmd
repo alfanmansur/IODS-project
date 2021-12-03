@@ -160,7 +160,7 @@ summary(fit)
 anova(fit)
 ```
 
-\
+
 ## 6.2. Implement the analyses of Chapter 9 of MABS using the BPRS data.
 
 Prepare the dataset
