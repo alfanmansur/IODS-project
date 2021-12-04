@@ -44,8 +44,9 @@ ggplot(RATSL, aes(x = Time, y = Weight, group = ID)) +
   theme(legend.position = "top")
 ```
 \
-In the RATS dataset, there are three kind of treatments that can bee seen from the plot above as group 1, group 2, and group three. The weight (in grams) of the rats is on y-axes plotted against time (in days) on x-axes.
+In the RATS dataset, there are three kind of treatments that can bee seen from the plot above as group 1, group 2, and group three. The weight (in grams) of the rats is on y-axis plotted against time (in days) on x-axis.
 \
+
 ### Figure 8.1 Individual response profiles by treatment group for the RATS data
 
 We continue with plotting individual response profiles by group of treatments for the RATS data. A number of graphical displays including this one is useful in assessing longitudinal data which contains 'repeated measures'.
@@ -62,6 +63,7 @@ p6 <- p5 + scale_y_continuous(limits = c(min(RATSL$Weight), max(RATSL$Weight)))
 p6
 ```
 \
+
 ### Figure 8.2 Individual response profiles for RATS data after standardization
 
 Here, we standardize the weight by subtracting from its mean and then dividing by its standard deviation. Now, the trending variability over time looks gone, but the gains from treatment 1 to treatment 2 and 3 remain.
@@ -82,6 +84,7 @@ p6 <- p5 + scale_y_continuous(name = "standardized Weight")
 p6
 ```
 \
+
 ### Figure 8.3 Mean response profiles for the three treatment groups in the RATS data
 
 Next, we perform summary measure analysis by plotting the mean response profiles for the three treatment groups in the RATS data. The plot essentially take the mean of individual responses forming one series of mean, so we can see its behavior overtime. As we can see from the plot below, it trends up overtime and we can see a significant gain in weight from treatment 1 to treatment 2 and 3.
@@ -105,6 +108,7 @@ p7 <- p6 + scale_y_continuous(name = "mean(Weight) +/- se(Weight)")
 p7
 ```
 \
+
 ### Figure 8.4 Boxplots for the RATS data
 
 Another summary measure analysis that we can do is by displaying boxplots. Basically, every single boxplot contains information of the lowest point, the highest point, the most populated points, and the mean, hence we can gather lots of information. From the boxplots below, we can see the same patterns as before, i.e. trending up variability overtime and significant gains in weight in treatment 2 and 3. One additional information that we can see are the outliers as displayed the black dots.
@@ -120,6 +124,7 @@ p5 <- p4 + scale_x_discrete(name = "Time")
 p5
 ```
 \
+
 ### Figure 8.5 Boxplots of mean summary measures for the three treatment groups in the RATS data
 
 Next, rather than displaying the boxplots of weight against time, we here plot by group of treatments, i.e. 3 groups. As before, we see the significant gains in weight from treatment 1 to treatment 2 and 3.
@@ -141,6 +146,7 @@ p5
 ```
 
 \
+
 ### Figure 8.6 Boxplots of mean summary measures for the three treatment groups in the RATS data, without the outlier shown in Figure 8.5
 
 Here, we remove the outlier in group 2, i.e. filter out the weight > 550 grams. The informations here is still the same as before, except the removed outlier in group 2.
@@ -158,15 +164,11 @@ p5 <- p4 + scale_y_continuous(name = "mean(Weight), Times 1-8")
 p5
 ```
 \
+
 ### Table 8.3 Independent Samples t-test on the Mean Summary Measure for the RATS Data, Without the Outlier Shown in Figure 8.5
 
 Next, we perform a formal test for a difference. We apply a pairwise _t_-test to assess any difference between the treatment groups. As we can see from the results below, we have significant evidence for group differences.
 
-```{r}
-# Without the outlier, apply Student's t-test, two-sided:
-#ERROR
-#t.test(mean ~ Group, data = RATSL8S1, var.equal = TRUE)
-```
 
 ```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
 library(rstatix)
