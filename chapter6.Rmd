@@ -5,6 +5,9 @@ editor_options:
 ---
 # Chapter 6 Analysis of longitudinal data
 
+Here, we intend to do the analysis of longitudinal data as in the textbook of Multivariate Analysis for the Behavioral Sciences (MABS) by Vehkalahti and
+Everitt (2019) Chapter 8 and 9. The difference between this exercise and the original analysis in the textbook is that we swap the dataset, i.e. using the RATS data in the analyses of Chapter 8 of MABS and using the BPRS data in the analyses of Chapter 9 of MABS.
+
 We use the following R packages: 
 
 ```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
@@ -15,7 +18,7 @@ library(ggplot2)
 
 ## 6.1. Implement the analyses of Chapter 8 of MABS using the RATS data
 
-Prepare the dataset
+We start with preparing the dataset which we have also conducted in the previous data wrangling exercise.
 
 ```{r}
 # read the RATS data
@@ -41,7 +44,13 @@ ggplot(RATSL, aes(x = Time, y = Weight, group = ID)) +
   theme(legend.position = "top")
 ```
 \
+In the RATS dataset, there are three kind of treatments that can bee seen from the plot above as group 1, group 2, and group three. The weight (in grams) of the rats is on y-axes plotted against time (in days) on x-axes.
+\
 ### Figure 8.1 Individual response profiles by treatment group for the RATS data
+
+We continue with plotting individual response profiles by group of treatments for the RATS data. A number of graphical displays including this one is useful in assessing longitudinal data which contains 'repeated measures'.
+
+From the plot below, we can identify that there are substantial individual differences and variability seems to increase with time. Also, there appears significant gains in weight from treatment 1 to treatment 2 and 3 despite a possibility of existent outliers in the group of treatment 2.
 
 ```{r}
 p1 <- ggplot(RATSL, aes(x = Time, y = Weight, linetype = ID))
@@ -54,6 +63,8 @@ p6
 ```
 \
 ### Figure 8.2 Individual response profiles for RATS data after standardization
+
+Here, we standardize the weight by subtracting from its mean and then dividing by its standard deviation. Now, the trending variability over time looks gone, but the gains from treatment 1 to treatment 2 and 3 remain.
 
 ```{r}
 # Standardize the scores:
@@ -72,6 +83,8 @@ p6
 ```
 \
 ### Figure 8.3 Mean response profiles for the three treatment groups in the RATS data
+
+Next, we perform summary measure analysis by plotting the mean response profiles for the three treatment groups in the RATS data. The plot essentially take the mean of individual responses forming one series of mean, so we can see its behavior overtime. As we can see from the plot below, it trends up overtime and we can see a significant gain in weight from treatment 1 to treatment 2 and 3.
 
 ```{r}
 # Number of subjects (per group):
@@ -94,6 +107,8 @@ p7
 \
 ### Figure 8.4 Boxplots for the RATS data
 
+Another summary measure analysis that we can do is by displaying boxplots. Basically, every single boxplot contains information of the lowest point, the highest point, the most populated points, and the mean, hence we can gather lots of information. From the boxplots below, we can see the same patterns as before, i.e. trending up variability overtime and significant gains in weight in treatment 2 and 3. One additional information that we can see are the outliers as displayed the black dots.
+
 ```{r}
 p1 <- ggplot(RATSL, aes(x = factor(Time), y = Weight, fill = Group))
 p2 <- p1 + geom_boxplot(position = position_dodge(width = 0.9))
@@ -107,6 +122,8 @@ p5
 \
 ### Figure 8.5 Boxplots of mean summary measures for the three treatment groups in the RATS data
 
+Next, rather than displaying the boxplots of weight against time, we here plot by group of treatments, i.e. 3 groups. As before, we see the significant gains in weight from treatment 1 to treatment 2 and 3.
+
 ```{r}
 # Make a summary data of the post treatment Times (1-8)
 RATSL8S <- RATSL %>%
@@ -119,12 +136,14 @@ p1 <- ggplot(RATSL8S, aes(x = Group, y = mean))
 p2 <- p1 + geom_boxplot()
 p3 <- p2 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 p4 <- p3 + stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white")
-p5 <- p4 + scale_y_continuous(name = "mean(Weight), Times 1-8")
+p5 <- p4 + scale_y_continuous(name = "mean(Weight), days 1-8")
 p5
 ```
 
 \
 ### Figure 8.6 Boxplots of mean summary measures for the three treatment groups in the RATS data, without the outlier shown in Figure 8.5
+
+Here, we remove the outlier in group 2, i.e. filter out the weight > 550 grams. The informations here is still the same as before, except the removed outlier in group 2.
 
 ```{r}
 # Remove the outlier:
@@ -141,13 +160,32 @@ p5
 \
 ### Table 8.3 Independent Samples t-test on the Mean Summary Measure for the RATS Data, Without the Outlier Shown in Figure 8.5
 
+Next, we perform a formal test for a difference. We apply a pairwise _t_-test to assess any difference between the treatment groups. As we can see from the results below, we have significant evidence for group differences.
+
 ```{r}
 # Without the outlier, apply Student's t-test, two-sided:
 #ERROR
 #t.test(mean ~ Group, data = RATSL8S1, var.equal = TRUE)
 ```
 
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+library(rstatix)
+library(ggpubr)
+```
+```{r}
+# Get summary statistic
+RATSL8S1 %>%
+  group_by(Group) %>%
+  get_summary_stats(mean, type = "mean_sd")
+# Pairwise t-tests
+pwt <- RATSL8S1 %>%
+  pairwise_t_test(mean ~ Group, p.adjust.method = "bonferroni")
+pwt
+```
+
 ### Table 8.4 Analysis of Covariance of the RATS Data with Baseline RATS and Treatment Groups as Covariates
+
+Finally, here we perform analysis of covariance of the RATS Data with treatment 1 as baseline and treatment 2 and 3 as covariates. From the Analysis of Variance Table, we can see that we have a strong evidence of a treatment difference.
 
 ```{r}
 # Add the baseline from the original data as a new variable to the summary data:
@@ -161,9 +199,9 @@ anova(fit)
 ```
 
 
-## 6.2. Implement the analyses of Chapter 9 of MABS using the BPRS data.
+## 6.2. Implement the analyses of Chapter 9 of MABS using the BPRS data
 
-Prepare the dataset
+Prepare the dataset 
 
 ```{r}
 # Read the BPRS data
@@ -247,8 +285,11 @@ pairs(BPRS[, 3:11], cex = 0.7)
 \
 ### Table 9.4 Fitting Random Intercept Model, with week and treatment as Explanatory Variables, to BPRS Data
 
-```{r, echo=TRUE}
+```{r, results="hide", message=FALSE, warning=FALSE, error=FALSE}
 library("lme4")
+```
+
+```{r, echo=TRUE}
 BPRS_ref <- lmer(bprs ~ week + treatment + (1 | subject), data = BPRSL, REML = FALSE)
 summary(BPRS_ref)
 
