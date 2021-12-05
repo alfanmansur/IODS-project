@@ -285,7 +285,7 @@ Here, we show what happens if we fit a linear regression model ignoring the repe
 \
 $y_{ij}=\beta_0+t_j+\beta_1 x_{1ij}+\beta_2 x_{2ij}+...+\beta_K x_{Kij}+\varepsilon_{ij},\quad i=1,2,...,n,\quad \text{and}\quad j=1,2,...,r$.\
 
-where $\y_{ij}$ represents the value of the individual responses at time $t_j$. However, independence assumption seems likely not to hold for repeated measures data.
+where $y_{ij}$ represents the value of the individual responses at time $t_j$. However, independence assumption seems likely not to hold for repeated measures data.
 
 
 ```{r, echo=TRUE}
@@ -425,7 +425,7 @@ graph1; graph2
 
 
 
-_*This is the end of the report. That's all folks!*_
+_**This is the end of the report. That's all folks!**_
 
 ```{r}
 date()
